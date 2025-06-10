@@ -2,40 +2,41 @@ import os
 import subprocess
 import requests
 import json
+from typing import Any, Dict, List, Optional # Added import
 from src import config
 
 # --- Helper Functions ---
-def _get_octoprint_headers():
+def _get_octoprint_headers() -> Dict[str, str]:
     return {"X-Api-Key": config.OCTOPRINT_API_KEY}
 
-def _get_full_model_path(model_name):
+def _get_full_model_path(model_name: str) -> str:
     return os.path.join(config.MODELS_FOLDER_PATH, model_name)
 
-def _get_full_gcode_path(gcode_filename):
+def _get_full_gcode_path(gcode_filename: str) -> str:
     return os.path.join(config.GCODE_FOLDER_PATH, gcode_filename)
 
 # --- Original Repository Tools ---
 
-def list_models() -> list[str]:
-    """Lists all available 3D model files (.stl, .obj, .3mf)."""
+def list_models() -> List[str]:
+    """Lists all available 3D model files (.stl, .obj, .3mf) in the models folder."""
     allowed_extensions = ['.stl', '.obj', '.3mf']
     files = [f for f in os.listdir(config.MODELS_FOLDER_PATH) if any(f.lower().endswith(ext) for ext in allowed_extensions)]
     return files
 
-def list_gcode_files() -> list[str]:
-    """Lists all generated .gcode files."""
+def list_gcode_files() -> List[str]:
+    """Lists all generated .gcode files in the G-code folder."""
     files = [f for f in os.listdir(config.GCODE_FOLDER_PATH) if f.lower().endswith('.gcode')]
     return files
 
-def get_slicer_profiles() -> list[str]:
-    """Retrieves the list of available slicer profiles from OctoPrint."""
+def get_slicer_profiles() -> List[str]:
+    """Retrieves and lists available slicer profile names from OctoPrint."""
     url = f"{config.OCTOPRINT_URL}/api/slicing/prusa/profiles"
     response = requests.get(url, headers=_get_octoprint_headers())
     response.raise_for_status()
     return list(response.json().keys())
 
-def run_slicer(model_name: str, profile_name: str, output_filename: str = None) -> str:
-    """Slices a 3D model using PrusaSlicer CLI with a specified profile."""
+def run_slicer(model_name: str, profile_name: str, output_filename: Optional[str] = None) -> str:
+    """Slices a 3D model using a specified profile via PrusaSlicer CLI, saving the output G-code."""
     model_path = _get_full_model_path(model_name)
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"Model file not found: {model_name}")
@@ -61,8 +62,8 @@ def run_slicer(model_name: str, profile_name: str, output_filename: str = None) 
         return f"Slicing failed. Error:
 {e.stderr}"
 
-def upload_file_to_octoprint(filepath: str, select: bool = False, print_after_upload: bool = False) -> dict:
-    """Uploads a file (model or gcode) to OctoPrint."""
+def upload_file_to_octoprint(filepath: str, select: bool = False, print_after_upload: bool = False) -> Dict[str, Any]:
+    """Uploads a specified model or G-code file to OctoPrint, optionally selecting it and starting print."""
     if not os.path.isabs(filepath):
          raise ValueError("Please provide an absolute path to the file.")
     if not os.path.exists(filepath):
@@ -77,8 +78,8 @@ def upload_file_to_octoprint(filepath: str, select: bool = False, print_after_up
     response.raise_for_status()
     return response.json()
 
-def print_gcode_file(gcode_filename: str) -> dict:
-    """Selects a G-code file on OctoPrint and starts printing it."""
+def print_gcode_file(gcode_filename: str) -> Dict[str, Any]:
+    """Selects a G-code file already on OctoPrint and initiates the printing process."""
     url = f"{config.OCTOPRINT_URL}/api/files/local/{gcode_filename}"
     payload = {"command": "select", "print": True}
     response = requests.post(url, json=payload, headers=_get_octoprint_headers())
@@ -87,8 +88,8 @@ def print_gcode_file(gcode_filename: str) -> dict:
 
 # --- New AI-Powered Placeholder Tools ---
 
-def analyze_model_printability(model_name: str) -> dict:
-    """(Placeholder) Analyzes a 3D model for printability issues."""
+def analyze_model_printability(model_name: str) -> Dict[str, Any]:
+    """(Placeholder) Analyzes a 3D model for potential printability issues like overhangs or thin walls."""
     model_path = _get_full_model_path(model_name)
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"Model file not found: {model_name}")
@@ -99,8 +100,8 @@ def analyze_model_printability(model_name: str) -> dict:
         "details": "This is a placeholder for a future feature that will check for overhangs, thin walls, etc."
     }
 
-def optimize_model_orientation(model_name: str, goal: str = "minimi_supporti") -> dict:
-    """(Placeholder) Suggests the optimal orientation for printing."""
+def optimize_model_orientation(model_name: str, goal: str = "minimi_supporti") -> Dict[str, Any]:
+    """(Placeholder) Suggests an optimal orientation for a 3D model based on a specified goal (e.g., minimize supports)."""
     # Goal can be 'minimi_supporti', 'massima_robustezza', 'migliore_finitura'
     return {
         "model_name": model_name,
@@ -111,7 +112,7 @@ def optimize_model_orientation(model_name: str, goal: str = "minimi_supporti") -
     }
 
 def select_slicing_profile(model_name: str, print_goal: str = "prototipo_veloce") -> str:
-    """(Placeholder) Suggests the best slicing profile based on the print goal."""
+    """(Placeholder) Suggests the best slicing profile for a given model and printing goal."""
     # print_goal can be 'prototipo_veloce', 'massimo_dettaglio', 'pezzo_funzionale'
     profiles = get_slicer_profiles()
     if not profiles:
@@ -120,7 +121,7 @@ def select_slicing_profile(model_name: str, print_goal: str = "prototipo_veloce"
     return f"Suggested profile for '{print_goal}': {profiles[0]}. (This is a basic suggestion)."
 
 def diagnose_print_issue(issue_description: str) -> str:
-    """(Placeholder) Provides suggestions for common 3D printing issues."""
+    """(Placeholder) Provides troubleshooting suggestions for common 3D printing issues based on description."""
     issue = issue_description.lower()
     if "warping" in issue or "angoli sollevati" in issue:
         return "For warping, try: 1. Using a brim or raft. 2. Cleaning the print bed. 3. Increasing bed temperature slightly. 4. Checking for drafts."
@@ -129,7 +130,7 @@ def diagnose_print_issue(issue_description: str) -> str:
     return "Diagnosis not yet implemented for this issue. Please describe common problems like 'warping' or 'stringing'."
 
 # --- Toolset Definition ---
-TOOL_DEFINITIONS = {
+TOOL_DEFINITIONS: Dict[str, Any] = {
     # Original
     "list_models": list_models,
     "list_gcode_files": list_gcode_files,
