@@ -1,0 +1,13 @@
+[project]
+name = "ai-slicer-mcp-server"
+version = "0.1.0"
+description = "MCP Server for 3D printing slicing and management with PrusaSlicer and OctoPrint."
+authors = [{ name = "MCP Integration Specialist AI" }]
+requires-python = ">=3.9"
+dependencies = [
+    "python-dotenv",
+    "requests",
+]
+
+[tool.uv]
+# Configuration for the uv tool can be added here if needed.

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://mcp.dev/schemas/mcp.json",
+  "name": "AI Slicer Server",
+  "description": "A server for slicing 3D models with PrusaSlicer and managing prints with OctoPrint.",
+  "homepage": "https://github.com/VisualBoy/AI-Slicer",
+  "server": {
+    "run": [
+      "uv",
+      "run",
+      "python",
+      "src/main.py"
+    ],
+    "protocols": ["json-rpc-2.0"]
+  }
+}
